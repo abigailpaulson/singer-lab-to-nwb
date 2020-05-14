@@ -1,8 +1,8 @@
 from pynwb import NWBFile
 from pynwb.ecephys import ElectricalSeries
 from hdmf.data_utils import DataChunkIterator
-from nwb_conversion_tools.converter import NWBConverter
-from nwb_conversion_tools.ecephys.intan.load_intan import load_intan, read_header
+from singer_lab_to_nwb.converter import NWBConverter
+from singer_lab_to_nwb.ecephys.intan.load_intan import load_intan, read_header
 
 from pathlib import Path
 from datetime import datetime

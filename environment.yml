@@ -1,0 +1,18 @@
+name: singer_lab_nwb
+channels:
+- defaults
+- anaconda
+- conda-forge
+dependencies:
+- python=3.7
+- numpy
+- pip
+- scipy
+- matplotlib
+- jupyter
+- pip:
+  - ipython
+  - cycler
+  - h5py
+  - pynwb
+  - nwbn-conversion-tools
