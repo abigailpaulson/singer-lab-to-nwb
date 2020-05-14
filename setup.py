@@ -1,35 +1,21 @@
+# -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
-# To use a consistent encoding
-from codecs import open
-from os import path
 
-
-here = path.abspath(path.dirname(__file__))
-
-
-with open(path.join(here, 'README.md')) as f:
+# Get the long description from the README file
+with open('README.md', 'r') as f:
     long_description = f.read()
 
 setup(
-    name='nwb-conversion-tools',
-    version='0.3.4',
-    description='Convert data to nwb',
+    name='singer_lab_to_nwb',
+    version='0.1.0',
+    description='NWB conversion scripts and tutorials.',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    author='Ben Dichter and Luiz Tauffer',
-    author_email='ben.dichter@gmail.com',
-    url='https://github.com/catalystneuro/nwb-conversion-tools',
-    keywords='nwb',
+    author='Steph Prince',
     packages=find_packages(),
-    package_data={'': ['template_metafile.yml']},
     include_package_data=True,
+    package_data={'': ['*.yml']},
     install_requires=[
-        'pynwb', 'tqdm', 'natsort', 'numpy', 'scipy', 'bs4',
-        'pandas', 'jupyter', 'matplotlib', 'h5py', 'pyyaml', 'jupyter-client',
-        'spikeextractors', 'spikesorters', 'spiketoolkit',
-        'PySide2', 'nwbwidgets', 'psutil', 'voila'
-    ],
-    entry_points={
-        'console_scripts': ['nwb-gui=nwb_conversion_tools.gui.command_line:main'],
-    }
+        'matplotlib', 'cycler', 'scipy', 'numpy', 'jupyter', 'h5py', 'pynwb',
+        'pyintan', 'nwbn-conversion-tools'],
 )
