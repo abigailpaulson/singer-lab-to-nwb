@@ -17,5 +17,5 @@ setup(
     package_data={'': ['*.yml']},
     install_requires=[
         'matplotlib', 'cycler', 'scipy', 'numpy', 'jupyter', 'h5py', 'pynwb',
-        'pyintan', 'nwbn-conversion-tools'],
+        'nwbn-conversion-tools'],
 )

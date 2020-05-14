@@ -7,11 +7,11 @@ dependencies:
 - python=3.7
 - numpy
 - pip
+- scipy
+- matplotlib
+- jupyter
 - pip:
   - ipython
-  - matplotlib
-  - jupyter
-  - scipy
   - cycler
   - h5py
   - pynwb
