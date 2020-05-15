@@ -1,0 +1,5 @@
+ipython
+cycler
+h5py
+pynwb
+nwbn-conversion-tools

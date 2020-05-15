@@ -31,8 +31,18 @@ Ecephys:
   Device:
     - name: intanrigA
   ElectricalSeries:
-    - description: ADDME
-      name: ElectricalSeries
+    - description: data recorded from amplifier chips, in alphabetical order by Port channelsxtime
+      name: amplifierdata
+      rate: 20000
+      starting_time: 0.0
+      conversion: 1.0
+    - description: data recorded from Intan acquisition board digital inputs
+      name: digitalin
+      rate: 20000
+      starting_time: 0.0
+      conversion: 1.0
+    - description: data recorded from Intan acquisition board analog inputs
+      name: analogin
       rate: 20000
       starting_time: 0.0
       conversion: 1.0
