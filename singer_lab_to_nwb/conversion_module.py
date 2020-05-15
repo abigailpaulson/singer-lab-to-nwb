@@ -2,7 +2,7 @@
 # written for Jaeger Lab
 # ------------------------------------------------------------------------------
 from pynwb import NWBHDF5IO
-from ecephys.intan import Intan2NWB
+from singer_lab_to_nwb.ecephys import Intan2NWB  #changed from ecephys.intan
 import yaml
 import os
 
@@ -41,11 +41,10 @@ def conversion_function(source_paths, f_nwb, metadata, add_rhd=False, **kwargs):
 
     # Adding ecephys
     if add_rhd:
-        nwbfile = add_ecephys_rhd(
+        nwbfile = Intan2NWB(
             nwbfile=nwbfile,
             metadata=metadata,
-            source_dir=dir_ecephys_rhd,
-            electrodes_file=file_electrodes,
+            source_paths=dir_ecephys_rhd,
         )
 
     # Saves to NWB file

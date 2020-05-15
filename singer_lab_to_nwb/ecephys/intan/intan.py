@@ -28,7 +28,7 @@ class Intan2NWB(NWBConverter):
         """
         Overriding method to get session_start_time form rhd files.
         """
-        nwbfile_args = dict(identifier=str(uuid.uuid4()),)
+        nwbfile_args = dict(identifier=str(uuid.uuid4()), )
         nwbfile_args.update(**metadata_nwbfile)
         session_start_time = self.get_session_start_time(self.source_paths['dir_ecephys_rhd']['path'])
         nwbfile_args.update(**session_start_time)
@@ -66,19 +66,21 @@ class Intan2NWB(NWBConverter):
         else:
             electrodes_file = None
 
-        def data_gen(source_dir):
+        def data_gen(source_dir, datatype='amplifier_data'):
             all_files_rhd = list(dir_ecephys_rhd.glob('*.rhd'))
             n_files = len(all_files_rhd)
             # Iterates over all files within the directory
             for ii, fname in enumerate(all_files_rhd):
                 print("Converting ecephys rhd data: {}%".format(100 * ii / n_files))
                 file_data = load_intan.read_data(filename=fname)
-                # Gets only valid timestamps
-                valid_ts = file_data['board_dig_in_data'][0]
-                analog_data = file_data['amplifier_data'][:, valid_ts]
+                # Gets only valid timestamps valid_ts = file_data['board_dig_in_data'][0] - ALP 5/15/2020 I do not
+                # understand this. I want to keep all time stamps analog_data = file_data['amplifier_data'][:,
+                # valid_ts] - ALP 5/15/2020 same as above i do not understand
+                analog_data = file_data[datatype]  # ALP 5/15/20 get variable data specified in datatype
                 n_samples = analog_data.shape[1]
                 for sample in range(n_samples):
-                    yield analog_data[:, sample]
+                    yield analog_data[:, sample]  # maybe I can yield multiple things? look into data iter
+
 
         # Gets header data from first file
         all_files_rhd = list(dir_ecephys_rhd.glob('*.rhd'))
@@ -96,17 +98,34 @@ class Intan2NWB(NWBConverter):
         file_data = load_intan.read_data(filename=all_files_rhd[0])
         electrodes_info = file_data['amplifier_channels']
         n_electrodes = len(electrodes_info)
+        n_adc_channels = file_data['board_adc_data'].shape[0]  # added ALP 5/15/2020
+        n_dig_channels = file_data['board_dig_in_data'].shape[0]  # added ALP 5/15/2020
         electrode_table_region = self.nwbfile.create_electrode_table_region(
             region=list(np.arange(n_electrodes)),
             description='no description'
         )
 
-        # Create iterator
-        data_iter = DataChunkIterator(
-            data=data_gen(source_dir=dir_ecephys_rhd),
+        # Create iterator - ALP updated 5/15/2020 - iterator name update, add dig_data_iter and adc_data_iter to
+        # extract other data of interest
+        amp_data_iter = DataChunkIterator(
+            data=data_gen(source_dir=dir_ecephys_rhd, datatype='amplifier_data'),
             iter_axis=0,
             buffer_size=10000,
             maxshape=(None, n_electrodes)
+        )
+
+        dig_data_iter = DataChunkIterator(
+            data=data_gen(source_dir=dir_ecephys_rhd, datatype='board_dig_in_data'),
+            iter_axis=0,
+            buffer_size=10000,
+            maxshape=(None, n_dig_channels)
+        )
+
+        adc_data_iter = DataChunkIterator(
+            data=data_gen(source_dir=dir_ecephys_rhd, datatype='board_adc_data'),
+            iter_axis=0,
+            buffer_size=10000,
+            maxshape=(None, n_dig_channels)
         )
 
         # Electrical Series
@@ -116,13 +135,37 @@ class Intan2NWB(NWBConverter):
         ephys_ts = ElectricalSeries(
             name=metadata_ecephys['ElectricalSeries'][0]['name'],
             description=metadata_ecephys['ElectricalSeries'][0]['description'],
-            data=data_iter,
+            data=amp_data_iter,
             electrodes=electrode_table_region,
             rate=sampling_rate,
             starting_time=0.0,
             conversion=es_conversion_factor
         )
         self.nwbfile.add_acquisition(ephys_ts)
+
+        # add another electrical series for other data types - ALP 5/15/2020
+        dig_ts = ElectricalSeries(
+            name=metadata_ecephys['ElectricalSeries'][1]['name'],
+            description=metadata_ecephys['ElectricalSeries'][1]['description'],
+            data=dig_data_iter,
+            electrodes=electrode_table_region,
+            rate=sampling_rate,
+            starting_time=0.0,
+            conversion=es_conversion_factor
+        )
+        self.nwbfile.add_acquisition(dig_ts)
+
+        # add another electrical series for other data types - ALP 5/15/2020
+        adc_ts = ElectricalSeries(
+            name=metadata_ecephys['ElectricalSeries'][2]['name'],
+            description=metadata_ecephys['ElectricalSeries'][2]['description'],
+            data=adc_data_iter,
+            electrodes=electrode_table_region,
+            rate=sampling_rate,
+            starting_time=0.0,
+            conversion=es_conversion_factor
+        )
+        self.nwbfile.add_acquisition(adc_ts)
 
     def create_electrodes_ecephys(self, all_files_rhd, electrodes_file):
         """
